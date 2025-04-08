@@ -8,7 +8,7 @@
     body {
       font-family: 'Noto Sans KR', sans-serif; /* 구글 웹폰트 사용 시 필요 */
       background-color: #fffaf5;
-      color: #333;
+      color: #2e2e2e;
       text-align: center;
       padding: 2rem;
       box-sizing: border-box;
@@ -65,7 +65,7 @@
       margin-top: 2rem;
       font-size: 1.1rem; /* 약간 작게 조정 */
       line-height: 2.0; /* 줄 간격 조정 */
-      text-align: left;   /* 왼쪽 정렬 */
+      text-align: left;    /* 왼쪽 정렬 */
       padding: 1rem; /* 패딩 추가 */
       background-color: #f9f9f9; /* 결과 영역 배경색 */
       border-radius: 0.5rem; /* 결과 영역 모서리 둥글게 */
@@ -95,16 +95,26 @@
       display: block; /* 이미지 가운데 정렬 위해 block 요소로 */
       margin: 0 auto; /* 가운데 정렬 */
     }
-    .easter-egg { /* 이스터에그 스타일 */
-      background-color: #222;
-      color: #0f0; /* 밝은 녹색 */
-      padding: 1rem;
+
+    /* --- 이스터에그 스타일 수정 --- */
+    .easter-egg {
+      background-color: #ccc; /* 연회색 배경 적용 */
+      color: #0f0; /* 밝은 녹색 텍스트 유지 */
+      padding: 1.5rem; /* 패딩 조정 */
       border-radius: 1rem;
       margin-top: 2rem;
-      font-family: 'Courier New', monospace; /* 터미널 느낌 폰트 */
-      animation: blink 1s step-start 0s infinite; /* 깜빡임 애니메이션 */
-      text-align: center; /* 이스터에그 텍스트 가운데 정렬 */
+      font-family: 'Courier New', monospace; /* 터미널 느낌 폰트 유지 */
+      animation: blink 1s step-start 0s infinite; /* 깜빡임 애니메이션 유지 */
+      text-align: center; /* 전체 내용 가운데 정렬 */
+      border: 2px dashed #0f0; /* 녹색 점선 테두리 추가 (선택 사항) */
     }
+
+    .easter-egg img { /* 이스터에그 내부 이미지 스타일 */
+      display: block; /* 이미지를 블록 요소로 만들어 가운데 정렬 및 아래 텍스트와 분리 */
+      max-width: 100px; /* 이미지 최대 너비 설정 */
+      margin: 0 auto 1rem auto; /* 위쪽 여백 0, 좌우 자동(가운데 정렬), 아래쪽 여백 1rem */
+    }
+    /* --- 이스터에그 스타일 수정 끝 --- */
 
     @keyframes blink { /* 깜빡임 애니메이션 정의 */
       50% { opacity: 0.6; }
@@ -140,18 +150,13 @@
     <p>선호하거나 피하고 싶은 맛이나 재료를 알려주세요!<br>("매콤한 참치", "마요네즈 싫어요", "고기 좋은데 느끼한 건 별로" 처럼)</p>
     <input type="text" id="userInput" placeholder="예: 매콤함, 참치 좋아요, 마요 싫어요" />
     <button onclick="handleRecommend()">🍴 나만의 삼김 찾기!</button>
-
-    <div id="sandwichImageBox" style="background-color: #f0f0f0; padding: 10px; text-align: center; margin-top: 1rem; display: none;">
-      <img src="sandwich.png" alt="샌드위치 이미지" style="max-width: 100%; height: auto;">
-    </div>
-
     <div class="result" id="resultArea">결과가 여기에 표시됩니다.</div>
-   <div id="easterEgg" class="easter-egg" style="display: none;">
-  <img src="sandwich.png" alt="샌드위치 그림" style="width: 80px; margin-bottom: 0.5rem;" />
-  🥪 어둠의 샌드위치 레지스탕스단 발견! 🥪<br>
-  그들의 비밀 메시지: "삼김 대신 샌드위치!"
+
+    <div id="easterEgg" class="easter-egg" style="display: none;">
+      <img src="sandwich.png" alt="샌드위치 이미지"> <span> 🥪 어둠의 샌드위치 레지스탕스단 발견! 🥪<br>그들의 비밀 메시지: "삼김 대신 샌드위치!"
+      </span>
     </div>
-  </div>
+    </div>
 
   <script>
     // --- 데이터 정의 ---
@@ -165,7 +170,7 @@
       "짠": "짭짤함", "짭잘": "짭짤함",
       "고소한": "고소함", "꼬숩": "고소함",
       "개운한": "개운함", "깔끔": "개운함",
-      "무거운": "묵직함", "무겁다": "무겁다", "든든": "묵직함",
+      "무거운": "묵직함", "무겁다": "묵직함", "든든": "묵직함",
       "달콤": "달달함", "단맛": "달달함",
       "고기": "고기", "육류": "고기",
       "마요": "마요네즈"
@@ -181,38 +186,38 @@
     ];
 
     const samgimList = [
-       { name: "동원 참치김치", keywords: ["참치", "김치", "개운함", "매콤함"] },
-       { name: "동원 참치마요", keywords: ["참치", "마요네즈", "고소함", "느끼함"] },
-       { name: "더큰! 참치마요", keywords: ["참치", "마요네즈", "고소함", "느끼함", "묵직함"] },
-       { name: "더큰! 청양참치마요", keywords: ["참치", "마요네즈", "청양고추", "매콤함", "느끼함", "묵직함"] },
-       { name: "더큰! 전주비빔", keywords: ["고추장", "채소", "매콤함", "새콤함", "묵직함"] },
-       { name: "더큰! 춘천닭갈비", keywords: ["닭고기", "고추장", "매콤함", "묵직함", "고기"] },
-       { name: "더큰! 제육볶음", keywords: ["돼지고기", "고추장", "매콤함", "짭짤함", "묵직함", "고기"] },
-       { name: "더큰! 스팸김치볶음", keywords: ["스팸", "김치", "짭짤함", "개운함", "묵직함", "고기"] },
-       { name: "더큰! 간장불고기", keywords: ["소고기", "간장", "달달함", "짭짤함", "담백함", "고기", "묵직함"] },
-       { name: "백종원 비빔밥", keywords: ["채소", "고추장", "매콤함", "새콤함", "담백함"] },
-       { name: "백종원 연탄불고기", keywords: ["돼지고기", "간장", "불향", "달달함", "짭짤함", "고기"] },
-       { name: "맵칼 어묵 삼각김밥", keywords: ["어묵", "매콤함", "짭짤함", "개운함"]},
-       { name: "통통햄 야채볶음밥", keywords: ["햄", "채소", "고소함", "짭짤함", "고기"]},
-       { name: "콘치즈닭갈비", keywords: ["닭고기", "치즈", "옥수수", "매콤함", "달달함", "고기"]},
-       { name: "치즈폭탄 주먹밥", keywords: ["치즈", "마요네즈", "김가루", "느끼함", "고소함", "짭짤함"]},
-       { name: "계란장조림", keywords: ["계란", "간장", "짭짤함", "달달함", "담백함"] },
-       { name: "치즈불닭", keywords: ["치즈", "닭고기", "매콤함", "느끼함", "자극적", "고기"] },
-       { name: "스팸참치마요", keywords: ["스팸", "참치", "마요네즈", "고소함", "짭짤함", "느끼함", "고기"] },
-       { name: "대게딱지장", keywords: ["게살", "고소함", "비릿함", "짭짤함"] },
-       { name: "스팸계란", keywords: ["스팸", "계란", "짭짤함", "고소함", "느끼함", "고기"] },
-       { name: "맛있는 숙성김치", keywords: ["김치", "개운함", "매콤함", "새콤함"]},
-       { name: "새우마요", keywords: ["새우", "마요네즈", "고소함", "느끼함", "튀김"] },
-       { name: "갓김치햄볶음밥", keywords: ["햄", "김치", "매콤함", "개운함", "묵직함", "고기"] },
-       { name: "숯불갈비맛", keywords: ["숯불", "돼지고기", "불향", "달달함", "짭짤함", "고기"] },
-       { name: "소고기볶음고추장", keywords: ["소고기", "고추장", "짭짤함", "매콤함", "묵직함", "고기"] },
-       { name: "스팸김치볶음", keywords: ["스팸", "김치", "짭짤함", "개운함", "묵직함", "고기"] },
-       { name: "고추장불고기", keywords: ["돼지고기", "고추장", "매콤함", "짭짤함", "고기"] },
-       { name: "매콤 멸추어묵", keywords: ["멸치", "청양고추", "어묵", "짭짤함", "매콤함", "개운함"] },
-       { name: "풀무원 두부김치 비건", keywords: ["채식", "두부", "김치", "담백함", "개운함", "비건", "가벼움"] },
-       { name: "풀무원 두부텐더 마요 비건", keywords: ["채식", "두부", "마요네즈", "담백함", "고소함", "비건", "가벼움"] },
-       { name: "두툼떡갈비", keywords: ["떡갈비", "달달함", "짭짤함", "묵직함", "고기"] },
-       { name: "버터장조림", keywords: ["버터", "소고기", "간장", "달달함", "고소함", "느끼함", "짭짤함", "고기"] }
+        { name: "동원 참치김치", keywords: ["참치", "김치", "개운함", "매콤함"] },
+        { name: "동원 참치마요", keywords: ["참치", "마요네즈", "고소함", "느끼함"] },
+        { name: "더큰! 참치마요", keywords: ["참치", "마요네즈", "고소함", "느끼함", "묵직함"] },
+        { name: "더큰! 청양참치마요", keywords: ["참치", "마요네즈", "청양고추", "매콤함", "느끼함", "묵직함"] },
+        { name: "더큰! 전주비빔", keywords: ["고추장", "채소", "매콤함", "새콤함", "묵직함"] },
+        { name: "더큰! 춘천닭갈비", keywords: ["닭고기", "고추장", "매콤함", "묵직함", "고기"] },
+        { name: "더큰! 제육볶음", keywords: ["돼지고기", "고추장", "매콤함", "짭짤함", "묵직함", "고기"] },
+        { name: "더큰! 스팸김치볶음", keywords: ["스팸", "김치", "짭짤함", "개운함", "묵직함", "고기"] },
+        { name: "더큰! 간장불고기", keywords: ["소고기", "간장", "달달함", "짭짤함", "담백함", "고기", "묵직함"] },
+        { name: "백종원 비빔밥", keywords: ["채소", "고추장", "매콤함", "새콤함", "담백함"] },
+        { name: "백종원 연탄불고기", keywords: ["돼지고기", "간장", "불향", "달달함", "짭짤함", "고기"] },
+        { name: "맵칼 어묵 삼각김밥", keywords: ["어묵", "매콤함", "짭짤함", "개운함"]},
+        { name: "통통햄 야채볶음밥", keywords: ["햄", "채소", "고소함", "짭짤함", "고기"]},
+        { name: "콘치즈닭갈비", keywords: ["닭고기", "치즈", "옥수수", "매콤함", "달달함", "고기"]},
+        { name: "치즈폭탄 주먹밥", keywords: ["치즈", "마요네즈", "김가루", "느끼함", "고소함", "짭짤함"]},
+        { name: "계란장조림", keywords: ["계란", "간장", "짭짤함", "달달함", "담백함"] },
+        { name: "치즈불닭", keywords: ["치즈", "닭고기", "매콤함", "느끼함", "자극적", "고기"] },
+        { name: "스팸참치마요", keywords: ["스팸", "참치", "마요네즈", "고소함", "짭짤함", "느끼함", "고기"] },
+        { name: "대게딱지장", keywords: ["게살", "고소함", "비릿함", "짭짤함"] },
+        { name: "스팸계란", keywords: ["스팸", "계란", "짭짤함", "고소함", "느끼함", "고기"] },
+        { name: "맛있는 숙성김치", keywords: ["김치", "개운함", "매콤함", "새콤함"]},
+        { name: "새우마요", keywords: ["새우", "마요네즈", "고소함", "느끼함", "튀김"] },
+        { name: "갓김치햄볶음밥", keywords: ["햄", "김치", "매콤함", "개운함", "묵직함", "고기"] },
+        { name: "숯불갈비맛", keywords: ["숯불", "돼지고기", "불향", "달달함", "짭짤함", "고기"] },
+        { name: "소고기볶음고추장", keywords: ["소고기", "고추장", "짭짤함", "매콤함", "묵직함", "고기"] },
+        { name: "스팸김치볶음", keywords: ["스팸", "김치", "짭짤함", "개운함", "묵직함", "고기"] },
+        { name: "고추장불고기", keywords: ["돼지고기", "고추장", "매콤함", "짭짤함", "고기"] },
+        { name: "매콤 멸추어묵", keywords: ["멸치", "청양고추", "어묵", "짭짤함", "매콤함", "개운함"] },
+        { name: "풀무원 두부김치 비건", keywords: ["채식", "두부", "김치", "담백함", "개운함", "비건", "가벼움"] },
+        { name: "풀무원 두부텐더 마요 비건", keywords: ["채식", "두부", "마요네즈", "담백함", "고소함", "비건", "가벼움"] },
+        { name: "두툼떡갈비", keywords: ["떡갈비", "달달함", "짭짤함", "묵직함", "고기"] },
+        { name: "버터장조림", keywords: ["버터", "소고기", "간장", "달달함", "고소함", "느끼함", "짭짤함", "고기"] }
     ];
 
     // --- 함수 정의 ---
@@ -224,7 +229,6 @@
       document.getElementById("userInput").value = ""; // 입력창 비우기
       document.getElementById("resultArea").innerHTML = "결과가 여기에 표시됩니다."; // 결과 영역 초기화
       document.getElementById("easterEgg").style.display = "none"; // 이스터에그 숨기기
-      document.getElementById("sandwichImageBox").style.display = "none"; // 샌드위치 이미지 박스 숨기기
       console.log("Retry requested - Fields cleared."); // 콘솔 로그
     }
 
@@ -245,26 +249,26 @@
 
       // 2. 부정 패턴 감지 및 해당 키워드 추출
       negationPatterns.forEach(({ pattern, type }) => {
-         let match;
-         const regex = new RegExp(pattern, 'g'); // 전역 검색으로 여러 번 등장하는 패턴 처리
-         while ((match = regex.exec(processedInput)) !== null) {
-             let keyword = "";
-             if (type === 'prefix' && match[1]) { // "안 A" 형태
-                 keyword = match[1].trim();
-             } else if (type === 'suffix' && match[1]) { // "A 는 아닌" 형태 등
-                 keyword = match[1].trim();
-             }
+          let match;
+          const regex = new RegExp(pattern, 'g'); // 전역 검색으로 여러 번 등장하는 패턴 처리
+          while ((match = regex.exec(processedInput)) !== null) {
+              let keyword = "";
+              if (type === 'prefix' && match[1]) { // "안 A" 형태
+                  keyword = match[1].trim();
+              } else if (type === 'suffix' && match[1]) { // "A 는 아닌" 형태 등
+                  keyword = match[1].trim();
+              }
 
-             // 추출된 단어가 실제 키워드 목록이나 동의어 목록에 있는지 확인
-             const targetKeyword = keywords.includes(keyword) ? keyword : null; // 표준화된 키워드만 사용
+              // 추출된 단어가 실제 키워드 목록이나 동의어 목록에 있는지 확인
+              const targetKeyword = keywords.includes(keyword) ? keyword : null; // 표준화된 키워드만 사용
 
-             if (targetKeyword) {
-                 negativeKeywords.add(targetKeyword);
-                 // 처리된 부정 표현은 이후 긍정 키워드 추출에서 제외하기 위해 임시로 제거 (완벽하진 않음)
-                 processedInput = processedInput.replace(match[0], "");
-                 console.log(`Negative pattern detected: '${match[0]}' -> added '${targetKeyword}' to negative.`);
-             }
-         }
+              if (targetKeyword) {
+                  negativeKeywords.add(targetKeyword);
+                  // 처리된 부정 표현은 이후 긍정 키워드 추출에서 제외하기 위해 임시로 제거 (완벽하진 않음)
+                  processedInput = processedInput.replace(match[0], "");
+                  console.log(`Negative pattern detected: '${match[0]}' -> added '${targetKeyword}' to negative.`);
+              }
+          }
       });
 
       // 3. 긍정/부정 분리 표현 ("A 좋은데 B 싫어", "A 이고 B") 처리
@@ -282,46 +286,37 @@
         if (parts.length > 1) {
           const latterParts = parts.slice(1).join(" ");
           keywords.forEach(k => {
-            if (latterParts.includes(k) && !positiveKeywords.has(k)) {
-              negativeKeywords.add(k);
-               console.log(`Negative (from split part 2): '${k}'`);
-            }
+              // 부정 키워드 목록에 없으면서, 명시적으로 '좋' 등의 긍정 단어가 없다면 부정으로 간주
+              if (latterParts.includes(k) && !latterParts.includes("좋") && !latterParts.includes("선호")) {
+                  negativeKeywords.add(k);
+                  console.log(`Negative (from split part 2): '${k}'`);
+              } else if (latterParts.includes(k)) { // 명시적 긍정이 있다면 긍정으로
+                  positiveKeywords.add(k);
+                  console.log(`Positive (from split part 2): '${k}'`);
+              }
           });
         }
-      } else {
-        // 분리 표현이 없는 경우, 남은 processedInput에서 긍정 키워드 추출
-        keywords.forEach(k => {
-          if (processedInput.includes(k) && !negativeKeywords.has(k)) {
-            positiveKeywords.add(k);
-             console.log(`Positive (no split): '${k}'`);
-          }
-        });
+        // 분리 처리된 부분은 이후 일반 키워드 추출에서 제외
+        processedInput = ""; // 단순화를 위해 전체 비움 (추후 개선 가능)
       }
 
-
-      return { positive: Array.from(positiveKeywords), negative: Array.from(negativeKeywords) };
-    }
-
-    /**
-     * 추출된 키워드를 기반으로 삼각김밥을 추천합니다.
-     * @param {{positive: string[], negative: string[]}} extractedKeywords - 긍정/부정 키워드 객체
-     * @returns {string} - 추천 결과 메시지
-     */
-    function recommendSamgim(extractedKeywords) {
-      const { positive, negative } = extractedKeywords;
-      const possibleRecommendations = samgimList.filter(samgim => {
-        return positive.every(keyword => samgim.keywords.includes(keyword)) &&
-               !negative.some(keyword => samgim.keywords.includes(keyword));
+      // 4. 나머지 텍스트에서 긍정 키워드 추출
+      keywords.forEach(k => {
+        // 부정 키워드로 이미 등록되지 않았고, 처리 후 남은 입력 텍스트에 포함되어 있다면 긍정으로 추가
+        if (processedInput.includes(k) && !negativeKeywords.has(k)) {
+          positiveKeywords.add(k);
+           console.log(`Positive (general): '${k}'`);
+        }
       });
 
-      if (possibleRecommendations.length > 0) {
-        // 추천 목록을 이름순으로 정렬 (선택 사항)
-        possibleRecommendations.sort((a, b) => a.name.localeCompare(b.name));
-        const recommendationsText = possibleRecommendations.map(r => `✅ ${r.name}`).join("<br>");
-        return `✨ 추천 삼각김밥 ✨<br><br>${recommendationsText}`;
-      } else {
-        return "😢 아쉽지만 조건에 딱 맞는 삼각김밥을 찾지 못했어요. <br>키워드를 조금 바꿔서 다시 시도해보세요!";
-      }
+      // 최종 결과 반환 (Set을 Array로 변환)
+      const finalPositive = [...positiveKeywords];
+      const finalNegative = [...negativeKeywords];
+
+      console.log("Parsed Positive:", finalPositive);
+      console.log("Parsed Negative:", finalNegative);
+
+      return { positive: finalPositive, negative: finalNegative };
     }
 
     /**
@@ -332,18 +327,15 @@
       const input = rawInput.toLowerCase().trim(); // 입력값 소문자 변환 및 공백 제거
       const resultArea = document.getElementById("resultArea");
       const egg = document.getElementById("easterEgg"); // 이스터에그 요소
-      const sandwichImageBox = document.getElementById("sandwichImageBox"); // 샌드위치 이미지 박스 요소
 
       // 이스터에그 체크 ("샌드위치" 포함 시)
       if (input.includes("샌드위치")) {
         resultArea.innerHTML = ""; // 일반 결과 영역 숨김
         egg.style.display = "block"; // 이스터에그 보이기
-        sandwichImageBox.style.display = "block"; // 샌드위치 이미지 박스 보이기
         console.log("Easter egg triggered!");
         return; // 추천 로직 중단
       } else {
         egg.style.display = "none"; // 이스터에그 숨기기
-        sandwichImageBox.style.display = "none"; // 샌드위치 이미지 박스 숨기기
       }
 
       // 입력값 파싱
@@ -356,18 +348,20 @@
       }
 
       // 삼각김밥 필터링
-      const recommendationResult = recommendSamgim({ positive, negative });
+      const result = samgimList.filter(item => {
+        const positiveMatch = positive.every(p => item.keywords.includes(p));
+        const negativeMatch = negative.every(n => !item.keywords.includes(n));
+        return positiveMatch && negativeMatch;
+      });
 
       // 결과 표시
-      resultArea.innerHTML = recommendationResult;
-    }
-
-    function retry() {
-      document.getElementById("userInput").value = "";
-      document.getElementById("resultArea").innerHTML = "결과가 여기에 표시됩니다.";
-      document.getElementById("easterEgg").style.display = "none";
-      document.getElementById("sandwichImageBox").style.display = "none"; // retry 시에도 숨기기
-      console.log("Retry requested - Fields cleared.");
+      if (result.length > 0) {
+        // 추천 목록을 이름순으로 정렬 (선택 사항)
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        resultArea.innerHTML = "✨ 추천 삼각김밥 ✨<br><br>" + result.map(r => `✅ ${r.name}`).join("<br>");
+      } else {
+        resultArea.innerHTML = "😢 아쉽지만 조건에 딱 맞는 삼각김밥을 찾지 못했어요. <br>키워드를 조금 바꿔서 다시 시도해보세요!";
+      }
     }
 
     // 페이지 로드 시 초기화 함수 호출 (선택 사항)
