@@ -1,1 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>삼각김밥 추천기</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #fffaf5;
+      color: #333;
+      text-align: center;
+      padding: 2rem;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      margin: 2rem auto;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1rem;
+      color: #777;
+    }
+    input {
+      padding: 0.75rem;
+      font-size: 1rem;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background-color: #ffb13c;
+      border: none;
+      border-radius: 0.5rem;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #ff9a00;
+    }
+    .result {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      line-height: 1.8;
+    }
+    .emoji {
+      font-size: 2rem;
+    }
+    .image-wrapper {
+      margin-top: 1rem;
+    }
+    .image-wrapper img {
+      width: 100px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="image-wrapper">
+      <img src="./samgim.png" alt="삼각김밥 캐릭터" />
+    </div>
+    <h1>🍙 삼각김밥 추천기</h1>
+    <p>"마요네즈 싫어요"처럼 입력해 주세요.</p>
+    <input type="text" id="userInput" placeholder="입맛을 입력하세요" />
+    <button onclick="handleRecommend()">🍴 추천받기</button>
+    <div class="result" id="resultArea"></div>
+  </div>
+
+  <script>
+    // ✅ 모든 함수 및 데이터는 DOM 이후에 정의되어야 하므로 이 위치에 둠
+
+    const keywords = ["참치", "마요네즈", "김치", "매콤함", "고소함", "느끼함", "짭짤함", "개운함", "묵직함", "담백함", "달달함", "간장", "청양고추", "고추장", "채소", "새콤함", "치즈", "자극적", "게살", "비릿함", "튀김", "햄", "숯불", "불향", "소고기", "돼지고기", "닭고기", "스팸", "계란", "떡갈비", "버터", "비건", "채식", "가벼움", "고기"];
+
+    const synonymMap = {
+      "매운": "매콤함",
+      "매움": "매콤함",
+      "맵다": "매콤함",
+      "맵지": "매콤함",
+      "비건": "채식",
+      "느끼한": "느끼함",
+      "담백한": "담백함",
+      "짠": "짭짤함",
+      "고소한": "고소함",
+      "개운한": "개운함",
+      "무거운": "묵직함",
+      "무겁다": "묵직함",
+      "고기": "고기",
+      "마요": "마요네즈"
+    };
+
+    const negationPatterns = [
+      { pattern: /맵지 않/, keyword: "매콤함" },
+      { pattern: /느끼지 않/, keyword: "느끼함" },
+      { pattern: /짭짤하지 않/, keyword: "짭짤함" },
+      { pattern: /고소하지 않/, keyword: "고소함" },
+      { pattern: /담백하지 않/, keyword: "담백함" }
+    ];
+
+    const samgimList = [
+      { name: "참치김치", keywords: ["참치", "김치", "개운함", "매콤함"] },
+      { name: "참치마요", keywords: ["참치", "마요네즈", "고소함", "느끼함"] },
+      { name: "청양참치마요", keywords: ["참치", "마요네즈", "청양고추", "매콤함", "느끼함"] },
+      { name: "춘천닭갈비", keywords: ["닭고기", "고추장", "매콤함", "묵직함", "고기"] },
+      { name: "제육볶음", keywords: ["돼지고기", "고추장", "매콤함", "짭짤함", "묵직함", "고기"] },
+      { name: "계란장조림", keywords: ["계란", "간장", "짭짤함", "담백함"] },
+      { name: "전주비빔", keywords: ["고추장", "채소", "매콤함", "새콤함"] },
+      { name: "치즈불닭", keywords: ["치즈", "닭고기", "매콤함", "느끼함", "자극적", "고기"] },
+      { name: "스팸참치마요", keywords: ["스팸", "참치", "마요네즈", "고소함", "짭짤함", "느끼함", "고기"] },
+      { name: "대게딱지장", keywords: ["게살", "고소함", "비릿함", "짭짤함"] },
+      { name: "스팸계란", keywords: ["스팸", "계란", "짭짤함", "고소함", "느끼함", "고기"] },
+      { name: "새우마요", keywords: ["새우", "마요네즈", "고소함", "느끼함", "튀김"] },
+      { name: "갓김치햄볶음밥", keywords: ["햄", "김치", "매콤함", "개운함", "묵직함", "고기"] },
+      { name: "숯불치밥", keywords: ["숯불", "닭고기", "불향", "짭짤함", "자극적", "고기"] },
+      { name: "소고기볶음고추장", keywords: ["소고기", "고추장", "짭짤함", "매콤함", "묵직함", "고기"] },
+      { name: "간장불고기", keywords: ["소고기", "간장", "달달함", "짭짤함", "담백함", "고기"] },
+      { name: "스팸김치볶음", keywords: ["스팸", "김치", "짭짤함", "개운함", "묵직함", "고기"] },
+      { name: "고추멸치볶음", keywords: ["멸치", "고추", "짭짤함", "매콤함", "개운함"] },
+      { name: "베지가든 비건 삼각김밥", keywords: ["채식", "담백함", "고소함", "비건", "가벼움"] },
+      { name: "두툼떡갈비", keywords: ["떡갈비", "달달함", "짭짤함", "묵직함", "고기"] },
+      { name: "버터장조림", keywords: ["버터", "간장", "달달함", "고소함", "느끼함", "짭짤함", "고기"] }
+    ];
+
+    function parseInput(input) {
+      const positive = [];
+      const negative = [];
+
+      if (input.includes("안 마요") || input.includes("마요 안") || input.includes("마요 싫")) {
+        negative.push("마요네즈");
+        input = input.replace(/안 마요|마요 안|마요 싫/g, "");
+      }
+
+      negationPatterns.forEach(({ pattern, keyword }) => {
+        if (pattern.test(input)) {
+          negative.push(keyword);
+          input = input.replace(pattern, "");
+        }
+      });
+
+      Object.entries(synonymMap).forEach(([word, canonical]) => {
+        const negForm = "안 " + word;
+        if (input.includes(negForm)) {
+          negative.push(canonical);
+          input = input.replaceAll(negForm, "");
+        }
+      });
+
+      Object.entries(synonymMap).forEach(([word, canonical]) => {
+        if (input.includes(word)) {
+          input = input.replaceAll(word, canonical);
+        }
+      });
+
+      if (input.includes("좋은데")) {
+        const [posPart, negPart] = input.split("좋은데");
+        keywords.forEach(k => {
+          if (posPart.includes(k)) positive.push(k);
+          if (negPart.includes(k)) negative.push(k);
+        });
+      } else {
+        keywords.forEach(k => {
+          if (input.includes("싫")) {
+            if (input.includes(k)) negative.push(k);
+          } else if (input.includes(k)) {
+            positive.push(k);
+          }
+        });
+      }
+
+      return { positive, negative };
+    }
+
+    function handleRecommend() {
+      const input = document.getElementById("userInput").value;
+      const { positive, negative } = parseInput(input);
+
+      if (positive.length === 0 && negative.length === 0) {
+        document.getElementById("resultArea").innerHTML =
+          "😕 이해할 수 있는 키워드가 없어요. 다시 입력해 주세요.";
+        return;
+      }
+
+      const result = samgimList.filter(item =>
+        positive.every(p => item.keywords.includes(p)) &&
+        negative.every(n => !item.keywords.includes(n))
+      );
+
+      const resultArea = document.getElementById("resultArea");
+      resultArea.innerHTML = result.length > 0
+        ? result.map(r => `✅ ${r.name}`).join("<br>")
+        : "😢 조건에 맞는 삼각김밥이 없어요.";
+    }
+  </script>
+</body>
+</html>
 
