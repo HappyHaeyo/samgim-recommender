@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>삼각김밥 추천기</title>
   <style>
+    /* 기존 CSS 스타일은 그대로 유지 */
     body {
-      font-family: 'Noto Sans KR', sans-serif; /* 구글 웹폰트 사용 시 필요 */
+      font-family: 'Noto Sans KR', sans-serif;
       background-color: #fffaf5;
       color: #333;
       text-align: center;
@@ -141,7 +142,7 @@
     <input type="text" id="userInput" placeholder="예: 매콤함, 참치 좋아요, 마요 싫어요" />
     <button onclick="handleRecommend()">🍴 나만의 삼김 찾기!</button>
 
-    <div style="background-color: #f0f0f0; padding: 10px; text-align: center; margin-top: 1rem;">
+    <div id="sandwichImageBox" style="background-color: #f0f0f0; padding: 10px; text-align: center; margin-top: 1rem; display: none;">
       <img src="sandwich.png" alt="샌드위치 이미지" style="max-width: 100%; height: auto;">
     </div>
 
@@ -154,7 +155,7 @@
   </div>
 
   <script>
-    // --- 데이터 정의 ---
+    // --- 데이터 정의 (기존 데이터 정의는 그대로 유지) ---
     const keywords = ["참치", "마요네즈", "김치", "매콤함", "고소함", "느끼함", "짭짤함", "개운함", "묵직함", "담백함", "달달함", "간장", "청양고추", "고추장", "채소", "새콤함", "치즈", "자극적", "게살", "비릿함", "튀김", "햄", "숯불", "불향", "소고기", "돼지고기", "닭고기", "스팸", "계란", "떡갈비", "버터", "비건", "채식", "가벼움", "고기", "멸치", "새우"];
 
     const synonymMap = {
@@ -171,11 +172,9 @@
       "마요": "마요네즈"
     };
 
-    // 부정 표현을 감지하는 패턴과 해당 키워드
+    // 부정 표현을 감지하는 패턴과 해당 키워드 (기존 부정 표현 패턴은 그대로 유지)
     const negationPatterns = [
-      // "A는 아닌", "A는 싫", "A는 별로", "A 빼고", "A 제외"
       { pattern: /(\S+)\s*(?:는|은)?\s*(?:아닌|아니|싫|별로|빼고|제외)/, type: "suffix"},
-      // "안 A", "A 안"
       { pattern: /안\s*(\S+)/, type: "prefix"},
       { pattern: /(\S+)\s*안/, type: "suffix"}
     ];
@@ -215,7 +214,7 @@
        { name: "버터장조림", keywords: ["버터", "소고기", "간장", "달달함", "고소함", "느끼함", "짭짤함", "고기"] }
     ];
 
-    // --- 함수 정의 ---
+    // --- 함수 정의 (기존 함수 정의는 그대로 유지) ---
 
     /**
      * 입력창, 결과 영역, 이스터에그 영역을 초기화합니다.
@@ -224,6 +223,7 @@
       document.getElementById("userInput").value = ""; // 입력창 비우기
       document.getElementById("resultArea").innerHTML = "결과가 여기에 표시됩니다."; // 결과 영역 초기화
       document.getElementById("easterEgg").style.display = "none"; // 이스터에그 숨기기
+      document.getElementById("sandwichImageBox").style.display = "none"; // 샌드위치 이미지 박스 숨기기
       console.log("Retry requested - Fields cleared."); // 콘솔 로그
     }
 
@@ -327,16 +327,32 @@
      */
     function handleRecommend() {
       const userInput = document.getElementById("userInput").value;
+      const sandwichImageBox = document.getElementById("sandwichImageBox");
+      const easterEgg = document.getElementById("easterEgg");
+      const resultArea = document.getElementById("resultArea");
+
       if (userInput.toLowerCase().includes("샌드위치")) {
-        document.getElementById("easterEgg").style.display = "block";
-        document.getElementById("resultArea").innerHTML = "";
+        sandwichImageBox.style.display = "block"; // 샌드위치 이미지 박스 보이기
+        easterEgg.style.display = "block";
+        resultArea.innerHTML = "";
         return;
+      } else {
+        sandwichImageBox.style.display = "none"; // "샌드위치"가 아니면 숨기기
+        easterEgg.style.display = "none";
       }
 
       const parsedKeywords = parseInput(userInput);
       console.log("Extracted Keywords:", parsedKeywords);
       const recommendationResult = recommendSamgim(parsedKeywords);
-      document.getElementById("resultArea").innerHTML = recommendationResult;
+      resultArea.innerHTML = recommendationResult;
+    }
+
+    function retry() {
+      document.getElementById("userInput").value = "";
+      document.getElementById("resultArea").innerHTML = "결과가 여기에 표시됩니다.";
+      document.getElementById("easterEgg").style.display = "none";
+      document.getElementById("sandwichImageBox").style.display = "none"; // retry 시에도 숨기기
+      console.log("Retry requested - Fields cleared.");
     }
   </script>
 </body>
