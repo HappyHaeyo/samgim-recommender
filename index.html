@@ -140,6 +140,11 @@
     <p>선호하거나 피하고 싶은 맛이나 재료를 알려주세요!<br>("매콤한 참치", "마요네즈 싫어요", "고기 좋은데 느끼한 건 별로" 처럼)</p>
     <input type="text" id="userInput" placeholder="예: 매콤함, 참치 좋아요, 마요 싫어요" />
     <button onclick="handleRecommend()">🍴 나만의 삼김 찾기!</button>
+
+    <div style="background-color: #f0f0f0; padding: 10px; text-align: center; margin-top: 1rem;">
+      <img src="sandwich.png" alt="샌드위치 이미지" style="max-width: 100%; height: auto;">
+    </div>
+
     <div class="result" id="resultArea">결과가 여기에 표시됩니다.</div>
    <div id="easterEgg" class="easter-egg" style="display: none;">
   <img src="sandwich.png" alt="샌드위치 그림" style="width: 80px; margin-bottom: 0.5rem;" />
@@ -256,7 +261,7 @@
                  negativeKeywords.add(targetKeyword);
                  // 처리된 부정 표현은 이후 긍정 키워드 추출에서 제외하기 위해 임시로 제거 (완벽하진 않음)
                  processedInput = processedInput.replace(match[0], "");
-                 console.log(`Negative pattern detected: '${match[0]}' -> added '${targetKeyword}' to negative.`);
+                 console.log(Negative pattern detected: '${match[0]}' -> added '${targetKeyword}' to negative.);
              }
          }
       });
@@ -269,93 +274,70 @@
         keywords.forEach(k => {
           if (parts[0].includes(k) && !negativeKeywords.has(k)) {
             positiveKeywords.add(k);
-             console.log(`Positive (from split part 1): '${k}'`);
+             console.log(Positive (from split part 1): '${k}');
           }
         });
         // 나머지 부분을 부정 후보로 간주 (더 정교한 로직 필요 가능성 있음)
         if (parts.length > 1) {
           const latterParts = parts.slice(1).join(" ");
           keywords.forEach(k => {
-             // 부정 키워드 목록에 없으면서, 명시적으로 '좋' 등의 긍정 단어가 없다면 부정으로 간주
-             if (latterParts.includes(k) && !latterParts.includes("좋") && !latterParts.includes("선호")) {
-                 negativeKeywords.add(k);
-                 console.log(`Negative (from split part 2): '${k}'`);
-             } else if (latterParts.includes(k)) { // 명시적 긍정이 있다면 긍정으로
-                 positiveKeywords.add(k);
-                 console.log(`Positive (from split part 2): '${k}'`);
-             }
+            if (latterParts.includes(k) && !positiveKeywords.has(k)) {
+              negativeKeywords.add(k);
+               console.log(Negative (from split part 2): '${k}');
+            }
           });
         }
-        // 분리 처리된 부분은 이후 일반 키워드 추출에서 제외
-        processedInput = ""; // 단순화를 위해 전체 비움 (추후 개선 가능)
+      } else {
+        // 분리 표현이 없는 경우, 남은 processedInput에서 긍정 키워드 추출
+        keywords.forEach(k => {
+          if (processedInput.includes(k) && !negativeKeywords.has(k)) {
+            positiveKeywords.add(k);
+             console.log(Positive (no split): '${k}');
+          }
+        });
       }
 
-      // 4. 나머지 텍스트에서 긍정 키워드 추출
-      keywords.forEach(k => {
-        // 부정 키워드로 이미 등록되지 않았고, 처리 후 남은 입력 텍스트에 포함되어 있다면 긍정으로 추가
-        if (processedInput.includes(k) && !negativeKeywords.has(k)) {
-          positiveKeywords.add(k);
-           console.log(`Positive (general): '${k}'`);
-        }
-      });
 
-      // 최종 결과 반환 (Set을 Array로 변환)
-      const finalPositive = [...positiveKeywords];
-      const finalNegative = [...negativeKeywords];
-
-      console.log("Parsed Positive:", finalPositive);
-      console.log("Parsed Negative:", finalNegative);
-
-      return { positive: finalPositive, negative: finalNegative };
+      return { positive: Array.from(positiveKeywords), negative: Array.from(negativeKeywords) };
     }
 
     /**
-     * 추천 버튼 클릭 시 실행되는 메인 함수
+     * 추출된 키워드를 기반으로 삼각김밥을 추천합니다.
+     * @param {{positive: string[], negative: string[]}} extractedKeywords - 긍정/부정 키워드 객체
+     * @returns {string} - 추천 결과 메시지
      */
-    function handleRecommend() {
-      const rawInput = document.getElementById("userInput").value;
-      const input = rawInput.toLowerCase().trim(); // 입력값 소문자 변환 및 공백 제거
-      const resultArea = document.getElementById("resultArea");
-      const egg = document.getElementById("easterEgg"); // 이스터에그 요소
-
-      // 이스터에그 체크 ("샌드위치" 포함 시)
-      if (input.includes("샌드위치")) {
-        resultArea.innerHTML = ""; // 일반 결과 영역 숨김
-        egg.style.display = "block"; // 이스터에그 보이기
-        console.log("Easter egg triggered!");
-        return; // 추천 로직 중단
-      } else {
-        egg.style.display = "none"; // 이스터에그 숨기기
-      }
-
-      // 입력값 파싱
-      const { positive, negative } = parseInput(rawInput);
-
-      // 유효한 키워드가 하나도 없는 경우
-      if (positive.length === 0 && negative.length === 0) {
-         resultArea.innerHTML = "🤔 키워드를 이해하기 어려워요. <br>좋아하는 맛 (예: 매콤함), 싫어하는 재료 (예: 마요네즈 싫어) 등을 입력해보세요!";
-         return;
-      }
-
-      // 삼각김밥 필터링
-      const result = samgimList.filter(item => {
-        const positiveMatch = positive.every(p => item.keywords.includes(p));
-        const negativeMatch = negative.every(n => !item.keywords.includes(n));
-        return positiveMatch && negativeMatch;
+    function recommendSamgim(extractedKeywords) {
+      const { positive, negative } = extractedKeywords;
+      const possibleRecommendations = samgimList.filter(samgim => {
+        // 모든 긍정 키워드를 포함하고, 부정 키워드를 하나도 포함하지 않는 삼각김밥 필터링
+        return positive.every(keyword => samgim.keywords.includes(keyword)) &&
+               !negative.some(keyword => samgim.keywords.includes(keyword));
       });
 
-      // 결과 표시
-      if (result.length > 0) {
-        // 추천 목록을 이름순으로 정렬 (선택 사항)
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        resultArea.innerHTML = "✨ 추천 삼각김밥 ✨<br><br>" + result.map(r => `✅ ${r.name}`).join("<br>");
+      if (possibleRecommendations.length > 0) {
+        const randomIndex = Math.floor(Math.random() * possibleRecommendations.length);
+        return `오늘 당신에게 딱 맞는 삼각김밥은 바로 <span class="emoji">🍙</span> <b>${possibleRecommendations[randomIndex].name}</b> 입니다!`;
       } else {
-        resultArea.innerHTML = "😢 아쉽지만 조건에 딱 맞는 삼각김밥을 찾지 못했어요. <br>키워드를 조금 바꿔서 다시 시도해보세요!";
+        return "앗, 딱 맞는 삼각김밥을 찾지 못했어요. 좀 더 구체적으로 알려주시거나, 다른 키워드를 사용해 보세요!";
       }
     }
 
-    // 페이지 로드 시 초기화 함수 호출 (선택 사항)
-    // retry();
+    /**
+     * 추천 로직을 실행하고 결과를 화면에 표시합니다.
+     */
+    function handleRecommend() {
+      const userInput = document.getElementById("userInput").value;
+      if (userInput.toLowerCase().includes("샌드위치")) {
+        document.getElementById("easterEgg").style.display = "block";
+        document.getElementById("resultArea").innerHTML = "";
+        return;
+      }
+
+      const parsedKeywords = parseInput(userInput);
+      console.log("Extracted Keywords:", parsedKeywords);
+      const recommendationResult = recommendSamgim(parsedKeywords);
+      document.getElementById("resultArea").innerHTML = recommendationResult;
+    }
   </script>
 </body>
 </html>
